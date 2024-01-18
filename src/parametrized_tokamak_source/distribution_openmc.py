@@ -91,14 +91,9 @@ def total_power(x: npt.NDArray[float]) -> npt.NDArray[float]:
 def psi_calc(
     pp: PlasmaParams, sample_size: int
 ) -> tuple[npt.NDArray[float], npt.NDArray[float], npt.NDArray[float]]:
-    """
-    _R and _Z is calculated on normal scattered points (psi,t).
-    X - new R coordinate array like
-    Y - new Z coordinate array like
-    Computing psi in X , Y points array like
-    """
 
-    # sample_count = 10000
+    #_R and _Z is calculated on normal scattered points (psi,t).
+
     psi = np.random.triangular(0.0, 1.0, 1.0, sample_size)
     t = np.random.uniform(0.0, 2 * np.pi, sample_size)
     _R = pp.R(psi, t)

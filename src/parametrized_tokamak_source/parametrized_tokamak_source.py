@@ -20,8 +20,12 @@ def make_openmc_sources(
     is based on .strengths.
 
     Args:
+        plasma_params (parametrized_tokamak_source.do.PlasmaParams): plasma parameters
+        intensity (parametrized_tokamak_source.do.IntensityDT | parametrized_tokamak_source.do.IntensityDD): plasma distribution
         angles ((float, float), optional): rotation of the ring source.
         Defaults to (0, 2*np.pi).
+        sample_size (int, optional): number of samples in the plasma source.
+        Defaults to 10000.
 
     Returns:
         list: list of openmc.IndependentSource()
