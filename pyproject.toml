@@ -1,0 +1,128 @@
+[tool.poetry]
+name = "parametrized-tokamak-source"
+version = "0.1.0"
+description = "Create OpenMC neutron source from plasma parametrized Te and Ne distributions."
+authors = ["egor1abs"]
+license = "MIT"
+readme = "README.md"
+packages = [
+    { include = "parametrized_tokamak_source", from = "src"},
+]
+
+[tool.poetry.dependencies]
+python = ">=3.10"
+numpy = ">=1.26.3"
+
+[tool.poetry.group.dev.dependencies]
+black = ">=23.12.1"
+coverage = { version = ">=6.1.2", extras = ["toml"] }
+isort = ">=5.13.2"
+pytest = ">=7.4.4"
+pytest-cov = ">=4.1.0"
+ruff = ">=0.1.13"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.isort]
+atomic = true
+ensure_newline_before_comments = true
+known_first_party = "r2s_rfda"
+known_third_party = "mpl_toolkits,matplotlib,numpy,scipy"
+known_typing = "typing,types,typing_extensions,mypy,mypy_extensions"
+sections = "FUTURE,TYPING,STDLIB,THIRDPARTY,FIRSTPARTY,LOCALFOLDER"
+default_section = "FIRSTPARTY"
+use_parentheses = true
+multi_line_output = 3
+line_length = 100
+include_trailing_comma = true
+lines_between_types = 1
+skip_gitignore = true
+skip_glob = ["*-example.py"]
+
+
+[tool.black]
+line-length = 100
+include = '''
+(
+    \\.pyi?$
+)
+'''
+exclude = '''
+(
+    \.eggs
+  | \.git
+  | \.mypy_cache
+  | \.pytest_cache
+  | \.nox
+  | \.venv
+  | \.idea
+  | _build
+  | build
+  | build_configs
+  | dist
+  | 3rd-party
+  | data
+  | htmlcov
+  | \.egg-info
+  | _tab\.py$
+  | notebooks
+  | wrk
+)
+'''
+
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+norecursedirs = ".* build dist *.egg-info data htmlcov notebooks tools wrk"
+python_functions = "test_*  profile_*"
+addopts = "-ra -q --tb=short --doctest-modules --strict-markers --ignore setup.py --failed-first"
+doctest_optionflags = "NORMALIZE_WHITESPACE IGNORE_EXCEPTION_DETAIL ALLOW_UNICODE ALLOW_BYTES"
+testpaths = ["tests"]
+markers = [
+    'slow: marks tests as slow (deselect with -m "not slow")',
+]
+# xfail tests that pass should fail the test suite
+xfail_strict = true
+filterwarnings = [
+    "error",
+    'ignore:Implementing implicit namespace packages \(as specified in PEP 420\) is preferred to `pkg_resources.declare_namespace`',
+    "ignore:.*not typechecking multipledispatch.dispatcher.*UserWarning",
+    'ignore:.*io.FileIO \[closed\]',
+    'ignore:.*Deprecated call to `pkg_resources.declare_namespace',
+    'ignore:.*Implicit None on return values:DeprecationWarning'
+]
+log_format = "%(asctime)s %(levelname)s %(message)s"
+log_date_format = "%Y-%m-%d %H:%M:%S"
+
+[tool.coverage.paths]
+source = ["src", ".nox/*/site-packages"]
+
+[tool.coverage.run]
+branch = true
+source = ["src"]
+omit = ["*_tab.py", "**/__init__.py"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+#fail_under = 80  # TODO dvp: increase limit to 100 with code maturing
+omit = ["*_tab.py", "**/__init__.py", "**/types.py"]
+# Regexes for lines to exclude from consideration
+exclude_lines = [
+    # Have to re-enable the standard pragma
+    "pragma: no cover",
+    # Don't complain about missing debug-only code:
+    "def __repr__",
+    "if self.debug",
+    # Don't complain if tests don't hit defensive assertion code:
+    "raise AssertionError",
+    "raise NotImplementedError",
+    # Don't complain if non-runnable code isn't run:
+    "if 0:",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+]
+ignore_errors = true
+sort = "Cover"
