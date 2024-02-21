@@ -12,8 +12,12 @@ def make_openmc_sources(
     intensity: IntensityDT | IntensityDD,
     angles: tuple[float, float] = (0, 2 * np.pi),
     sample_size: int = 10000,
+    R: float = 6.41,
+    Z: float = 0.67,
 ) -> list[openmc.IndependentSource]:
-    """Creates a list of OpenMC Sources() objects. The created sources are
+    """Creates a list of OpenMC Sources() objects. 
+    
+    The created sources are
     ring sources based on the .RZ coordinates between two angles. The
     energy of the sources are Muir energy spectra with ion temperatures
     based on .temperatures. The strength of the sources (their probability)
@@ -26,12 +30,15 @@ def make_openmc_sources(
         Defaults to (0, 2*np.pi).
         sample_size (int, optional): number of samples in the plasma source.
         Defaults to 10000.
+        R (float, optional): r-coordinate of plasma center position
+        Z (float, optional): z-coordinate of plasma center position
+        Defaults to R = 6.41 m, Z = 0.67 m.
 
     Returns:
         list: list of openmc.IndependentSource()
     """
 
-    params = do.psi_calc(plasma_params, sample_size)
+    params = do.psi_calc(plasma_params, sample_size, R, Z)
     r, z, psi = params
     neutron_source_density = intensity(psi) * r
     strengths = neutron_source_density / sum(neutron_source_density)
@@ -51,8 +58,10 @@ def make_openmc_sources(
             r=radius, phi=angle, z=z_values, origin=(0.0, 0.0, 0.0)
         )
 
+        e0 = 14079100.0 if intensity == IntensityDT else 2450000.0
+        
         my_source.angle = openmc.stats.Isotropic()
-        my_source.energy = openmc.stats.muir(e0=14080000.0, m_rat=5.0, kt=plasma_params.Ti(psi)[i])
+        my_source.energy = openmc.stats.muir(e0, m_rat=5.0, kt=plasma_params.Ti(psi)[i])
 
         # the strength of the source (its probability) is given by
         # self.strengths

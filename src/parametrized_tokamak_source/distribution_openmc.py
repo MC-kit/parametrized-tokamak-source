@@ -15,15 +15,7 @@ import pandas as pd
 
 HERE = Path(__file__).parent
 
-R_P, Z_P = 6.41, 0.67
-
-# RZ domain limits
-R_MIN, R_MAX = 4.046154, 8.353834
-Z_MIN, Z_MAX = -3.903846, -3.903846 + 8.307680
-
-
 PF = Callable[[npt.NDArray[float]], npt.NDArray[float]]
-
 
 @dataclass
 class PlasmaParams:
@@ -73,14 +65,13 @@ class PlasmaParams:
             ),
         )
 
-    def R(self, psi, t, r_p=R_P):
+    def R(self, psi, t, r_p):
         """Computing R (psi, t)."""
-        # r_p From SDEF determination of neutron source ITER
-        return r_p + self.sh(psi) + self.a(psi) * (np.cos(t) - self.delta(psi) * np.sin(t) ** 2)
+        return (r_p + self.sh(psi) + self.a(psi) * (np.cos(t) - self.delta(psi) * np.sin(t) ** 2)) * 100 # m -> cm
 
-    def Z(self, psi, t, z_p=Z_P):
+    def Z(self, psi, t, z_p):
         """Computing Z (psi, t)."""
-        return z_p + self.a(psi) * self.k(psi) * np.sin(t)
+        return (z_p + self.a(psi) * self.k(psi) * np.sin(t)) * 100 # m -> cm
 
 
 def total_power(x: npt.NDArray[float]) -> npt.NDArray[float]:
@@ -89,14 +80,14 @@ def total_power(x: npt.NDArray[float]) -> npt.NDArray[float]:
 
 
 def psi_calc(
-    pp: PlasmaParams, sample_size: int
+    pp: PlasmaParams, sample_size: int, R_P: float, Z_P: float,
 ) -> tuple[npt.NDArray[float], npt.NDArray[float], npt.NDArray[float]]:
 
     #_R and _Z is calculated on normal scattered points (psi,t).
 
     psi = np.random.triangular(0.0, 1.0, 1.0, sample_size)
     t = np.random.uniform(0.0, 2 * np.pi, sample_size)
-    _R = pp.R(psi, t)
-    _Z = pp.Z(psi, t)
+    _R = pp.R(psi, t, R_P)
+    _Z = pp.Z(psi, t, Z_P)
 
     return _R, _Z, psi
