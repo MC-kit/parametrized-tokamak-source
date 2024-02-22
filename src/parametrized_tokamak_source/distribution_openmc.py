@@ -32,8 +32,8 @@ class PlasmaParams:
 
     @classmethod
     def from_file(cls, path_to_parametrization: Path) -> PlasmaParams:
-        # if path_to_parametrization is None:
-        #     path_to_parametrization = HERE / "data/iter-parametrization.csv"
+        if path_to_parametrization is None:
+            path_to_parametrization = HERE / "data/iter-parametrization.csv"
         data = pd.read_csv(path_to_parametrization)
         psi_params = data["psi"].to_numpy()
         a_params = data["a"].to_numpy()
